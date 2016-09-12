@@ -15,6 +15,7 @@ from __future__ import print_function
 import numpy as np
 from scipy.spatial import cKDTree
 
+
 class KDTree:
     def __init__(self, matrix):
         """
@@ -39,7 +40,7 @@ class KDTree:
             loc = mat.shape[0] / 2
             mat = mat[mat[:, axis].argsort()]
             key = mat[loc]
-            np.delete(mat, loc, 0)
+            # np.delete(mat, loc, 0)
             left = build_kdtree(mat=mat[:loc], axis=(axis + 1) % dim, ancestor=key)
             right = build_kdtree(mat=mat[loc + 1:], axis=(axis + 1) % dim, ancestor=key)  # skipping because deleted 1
             return Node(coordinate=key, left=left, right=right, axis=axis, ancestor=ancestor)
@@ -194,5 +195,5 @@ if __name__ == "__main__":
         print("Scipy NN: {}".format(s_tree.data[scipy_res[1]]))
         # kdt.visualize(vector=vector)
 
-    data = np.random.uniform(low=0., high=10000., size=(10000, 2))
+    data = np.random.uniform(low=0., high=10000., size=(10000, 5))
     test(data)

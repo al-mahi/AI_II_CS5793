@@ -4,7 +4,7 @@
 Author: S M Al Mahi
 CS5793: Artificial Intelligence II
 Assignment 1: Basic classifiers
-Solution for Part 2,3,4,5
+Solution for Part 2,3,4
 """
 
 from __future__ import print_function
@@ -65,9 +65,9 @@ if __name__ == "__main__":
     - Incorrectly classified test set elements from class 1
     """
     beta = np.linalg.inv(training_X.T.dot(training_X)).dot(training_X.T).dot(training_y)
-    y_hat = test_X.dot(beta) >= 0.5
+    y_hat = test_X.dot(beta) >= 0.5  # differs from problem description. (?)
 
-    print("Linear Classifier accuracy: {:.2%}".format(float(sum(y_hat == test_y)) / len(test_y)))
+    print("Linear Classifier accuracy from 1 multi variant 2d Gaussian distribution: {:.2%}".format(float(sum(y_hat == test_y)) / len(test_y)))
 
     training_from_class0 = training_X[training_y.flatten() == 0]
     training_from_class1 = training_X[training_y.flatten() == 1]
@@ -83,7 +83,7 @@ if __name__ == "__main__":
     plt.plot(incorrect_from_class0[:, 0], incorrect_from_class0[:, 1], '.', c='m', label='Incorrectly classified test set from class 0')
     plt.plot(incorrect_from_class1[:, 0], incorrect_from_class1[:, 1], '.', c='k', label='Incorrectly classified test set from class 1')
     plt.legend(loc='lower right', fontsize='small')
-    plt.title("Linear Classifier")
+    plt.title("Linear Classifier from 1 multi variant 2d Gaussian distribution")
     plt.show()
 
     """
@@ -97,7 +97,7 @@ if __name__ == "__main__":
     kdtreeClassifier = cKDTree(training_X)
     y_hat = training_y[kdtreeClassifier.query(test_X[:], k=1)[1]]
 
-    print("KDTree Classifier accuracy: {:.2%}".format(float(sum(y_hat == test_y)) / len(test_y)))
+    print("KDTree Classifier accuracy from 1 multi variant 2d Gaussian distribution: {:.2%}".format(float(sum(y_hat == test_y)) / len(test_y)))
 
     correct_from_class0 = test_X[np.logical_and(test_y.flatten() == 0, y_hat.flatten() == 0)]
     correct_from_class1 = test_X[np.logical_and(test_y.flatten() == 1, y_hat.flatten() == 1)]
@@ -111,8 +111,9 @@ if __name__ == "__main__":
     plt.plot(incorrect_from_class0[:, 0], incorrect_from_class0[:, 1], '.', c='m', label='Incorrectly classified test set from class 0')
     plt.plot(incorrect_from_class1[:, 0], incorrect_from_class1[:, 1], '.', c='k', label='Incorrectly classified test set from class 1')
     plt.legend(loc='lower right', fontsize='small')
-    plt.title("KDtree Classifier")
+    plt.title("KDtree Classifier from 1 multi variant 2d Gaussian distribution")
     plt.show()
+
 
 
 

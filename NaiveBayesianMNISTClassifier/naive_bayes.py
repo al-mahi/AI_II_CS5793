@@ -9,7 +9,7 @@ Solution for Part 1
 
 from __future__ import print_function
 import numpy as np
-
+import matplotlib.pyplot as plt
 
 def mnist_data(fname):
     """
@@ -26,7 +26,7 @@ def mnist_data(fname):
     data_size = training_images.shape[0]
     image_size = 28 * 28
     num_of_img = data_size / image_size
-    # figure, axes = plt.subplots(nrows=2, ncols=2)
+    # figure, axes = plt.subplots(nrows=10, ncols=10)
     # ind = 1
     # print(training_images.shape, image_size, num_of_img)
     # for axis in axes.flat:
@@ -61,16 +61,15 @@ if __name__ == "__main__":
     counts = np.bincount(y.flatten())
     prior = counts / float(n)
     theta = np.zeros(shape=(k, d))
-    # because log of 0 is infinite imposing epsilon 0.00000000001 as minimum small value
-    epsilon = 0.00000001  # giving 82.86% accuracy
-    # epsilon = 1./k  # giving 79.43% accuracy
-    # epsilon = 1./28**2  # giving 79.43% accuracy
-    theta += epsilon
-    for K in range(k):
-        mask = (y.flatten() == K)
-        theta[K] += np.sum(x[mask], axis=0, dtype="float64") / counts[K]
 
-    complement = 1. - theta
+    for dig in range(k):
+        mask = (y.flatten() == dig)
+        #  remember the prior formula is (n + 1)/(N+k) so adding 1 in nominator
+        white_pixel_count = np.sum(x[mask], axis=0, dtype="float64") + 1.
+        #  remember the prior formula is (n + 1)/(N+k) so adding k=10 in denominator
+        theta[dig] += white_pixel_count / (counts[dig] + k)
+
+    log_complement = np.log(1. - theta)
 
     x = mnist_data('t10k-images.idx3-ubyte')
     y = mnist_labels('t10k-labels.idx1-ubyte')
@@ -80,11 +79,13 @@ if __name__ == "__main__":
     y_hat = np.zeros(y.shape)
     log_prior = np.log(prior)
     for i in range(x.shape[0]):
-        log_likelyhood = np.sum(log_theta[:, x[i].flatten()], axis=1) + np.sum(complement[:, np.logical_not(x[i].flatten())], axis=1)
+        log_likelyhood = np.sum(log_theta[:, x[i].flatten()], axis=1) + np.sum(log_complement[:, np.logical_not(x[i].flatten())], axis=1)
         log_posterior = log_prior + log_likelyhood
         y_hat[i] = np.argmax(log_posterior)
 
     print("MNIST data classification accuracy using Naive Bayes {:.2%}".format(float(sum(y == y_hat)) / y.shape[0]))
+
+
 
 
 

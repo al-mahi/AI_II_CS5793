@@ -57,7 +57,6 @@ if __name__ == "__main__":
     distance
     Conduct a 5-fold cross validation on your training set, testing the NN classifier on five candidate
     classifier models, those with K = {1, 3, 5, 7, 9}. Determine the best candidate model.
-
     """
     x = mnist_data('train-images.idx3-ubyte')
     y = mnist_labels('train-labels.idx1-ubyte')
@@ -237,10 +236,5 @@ if __name__ == "__main__":
                  "if the lower tail of 2 is shortened then it has been classified as seven, whereas the if the upper tail\n"
                  "of 7 is shortened it is classified as 1", fontsize=16)
     plt.show()
-
-
-
-
-
 
 

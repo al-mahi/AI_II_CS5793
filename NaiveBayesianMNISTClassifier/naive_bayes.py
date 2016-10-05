@@ -11,6 +11,7 @@ from __future__ import print_function
 import numpy as np
 import matplotlib.pyplot as plt
 
+
 def mnist_data(fname):
     """
     Read data from MNIST file

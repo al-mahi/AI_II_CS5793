@@ -19,7 +19,7 @@ def PHI(x, m=0):
     """
     return np.power(x, range(m))
 
-if __name__=="__main__":
+if __name__ == "__main__":
     data = np.loadtxt("crash.txt")
     training = data[:-1:2]
     test = data[1::2]
@@ -59,6 +59,14 @@ if __name__=="__main__":
             test_opt_rms = rms
             test_opt_m = L
             test_opt_w = w
+
+    print("phi={}\nw={}\nt={}\nphiW={}\nt-phiW={}".format(
+        PHI(x, 20),
+        np.linalg.solve(PHI(x, 20).T.dot(PHI(x,20)), PHI(x, 20).T.dot(t)),
+        t_test,
+        PHI(x_test, 20).dot(np.linalg.solve(PHI(x, 20).T.dot(PHI(x, 20)), PHI(x, 20).T.dot(t))),
+        t_test - PHI(x_test, 20).dot(np.linalg.solve(PHI(x, 20).T.dot(PHI(x, 20)), PHI(x, 20).T.dot(t))))
+    )
 
     plt.plot(RMS, c='r', label="training RMS")
     plt.plot(RMS_test, c='b', label="test RMS")

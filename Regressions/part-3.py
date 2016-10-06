@@ -20,6 +20,7 @@ def PHI_linear(x, m=0):
     """
     return np.power(x, range(m))
 
+
 def PHI_radial(x, m=0):
     """
     :type x: np.ndarray
@@ -27,11 +28,11 @@ def PHI_radial(x, m=0):
     """
     mu = np.linspace(x.min(), x.max(), m)
     sigma = np.fabs(mu[0] - mu[1])
-    return np.exp(-(x - mu)**2 / 2.*sigma**2)
+    return np.exp(-(x - mu)**2 / (2.*sigma**2))
 
 
 if __name__=="__main__":
-    # ----------using radial basis--------------------------
+    # ----------using linear basis--------------------------
     beta = .0025
     data = np.loadtxt("crash.txt")
     training = data[:-1:2]

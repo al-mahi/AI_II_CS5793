@@ -26,8 +26,9 @@ def PHI(x):
     :rtype: np.ndarray
     """
     m = x.shape[0]
-    return np.power(x, range(m))
-
+    mu = np.linspace(x.min(), x.max(), m)
+    sigma = np.fabs(mu[0] - mu[1])
+    return np.exp(-(x - mu)**2 / (2.*sigma**2))
 
 
 def f(w, x, t, alpha):
@@ -80,11 +81,11 @@ if __name__ == "__main__":
     x_test = data_x[N/2:]
     t_test = data_y[N/2:]
 
-    alpha = 0.00215
+    alpha = 0.003126
     w_init = np.ones(15)
 
     # as minimization takes some time save the result and reuse
-    if False:
+    if True:
         w_hat = minimize(f, w_init, args=(x, t, alpha)).x
         np.save("opt_w_MAP_regression", w_hat)
     else:
@@ -96,7 +97,6 @@ if __name__ == "__main__":
         for k in range(K):
             z[k] = w_hat[k:k+5].T.dot(PHI(x_test[i]))
         s = z / np.sum(z)
-        print(s, s.argmax())
         t_hat.append(s.argmax())
     y = np.array([c.argmax() for c in t_hat])
 

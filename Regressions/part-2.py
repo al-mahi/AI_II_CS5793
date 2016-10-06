@@ -19,7 +19,7 @@ def PHI(x, m=0):
     """
     mu = np.linspace(x.min(), x.max(), m)
     sigma = np.fabs(mu[0] - mu[1])
-    return np.exp(-(x - mu)**2 / 2.*sigma**2)
+    return np.exp(-(x - mu)**2 / (2.*sigma**2))
 
 if __name__=="__main__":
     data = np.loadtxt("crash.txt")
@@ -39,6 +39,7 @@ if __name__=="__main__":
     test_opt_w = None
     test_opt_m = 0
 
+    # Root mean square errors
     RMS = []
     RMS_test = []
 

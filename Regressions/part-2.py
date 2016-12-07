@@ -21,7 +21,7 @@ def PHI(x, m=0):
     sigma = np.fabs(mu[0] - mu[1])
     return np.exp(-(x - mu)**2 / (2.*sigma**2))
 
-if __name__=="__main__":
+if __name__ == "__main__":
     data = np.loadtxt("crash.txt")
     training = data[:-1:2]
     test = data[1::2]

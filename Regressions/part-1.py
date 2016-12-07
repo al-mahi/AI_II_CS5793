@@ -43,6 +43,7 @@ if __name__ == "__main__":
     for L in range(1, 21):
         phi = PHI(x, L)
         w = np.linalg.solve(phi.T.dot(phi), phi.T.dot(t))
+        # lecture 10.pdf Root mean squared error
         E = .5 * np.linalg.norm(t - phi.dot(w))**2
         rms = np.sqrt(2. * E / N)
         RMS.append(rms)

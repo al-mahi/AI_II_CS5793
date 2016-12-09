@@ -68,6 +68,7 @@ if __name__ == "__main__":
     x = np.hstack((np.ones(shape=(N, 1)), x))
     y = np.zeros(shape=(N, K))
     # y[n, i] == 1 iff nth data is from class i
+    # one-hot matrix
     for i in range(N):
         y[i, int(irises[i, 4])] = 1
 

@@ -31,6 +31,7 @@ def sim_machine(T):
                 loaded = False
     return w, v
 
+
 if __name__=="__main__":
     T = 1000
     N = 2
@@ -91,7 +92,7 @@ if __name__=="__main__":
     plt.show()
 
     plt.plot(range(T), original, 'b-', label='original')
-    plt.plot(range(T), final[1, :], 'g-', label='backward')
+    plt.plot(range(T), final[1, :], 'g-', label='combined')
     plt.yticks(np.linspace(0., 1.5, 10.))
     plt.xlabel("Time $t$")
     plt.ylabel("$P(Z_t|Z_{t-1}$)")

@@ -65,20 +65,19 @@ if __name__ == "__main__":
 
     for dig in range(k):
         mask = (y.flatten() == dig)
-        #  remember the prior formula is (n + 1)/(N+k) so adding 1 in nominator
+        #  remember the prior formula is (n + 1)/(N+k) so adding 1 in nominator white_pixel_count
         white_pixel_count = np.sum(x[mask], axis=0, dtype="float64") + 1.
         #  remember the prior formula is (n + 1)/(N+k) so adding k=10 in denominator
         theta[dig] += white_pixel_count / (counts[dig] + k)
 
+    log_theta = np.log(theta)
     log_complement = np.log(1. - theta)
+    log_prior = np.log(prior)
 
     x = mnist_data('t10k-images.idx3-ubyte')
     y = mnist_labels('t10k-labels.idx1-ubyte')
 
-    log_theta = np.log(theta)
-
     y_hat = np.zeros(y.shape)
-    log_prior = np.log(prior)
     for i in range(x.shape[0]):
         log_likelyhood = np.sum(log_theta[:, x[i].flatten()], axis=1) + np.sum(log_complement[:, np.logical_not(x[i].flatten())], axis=1)
         log_posterior = log_prior + log_likelyhood

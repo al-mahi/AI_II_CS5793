@@ -181,6 +181,7 @@ class Node:
     def __str__(self):
         return "[" + str(self._coordinate) + " " + self._axis + "(" + str(self._left) + ") {" + str(self._right) + "}]"
 
+
 if __name__ == "__main__":
     def test(data, vector=None):
         if vector is None:

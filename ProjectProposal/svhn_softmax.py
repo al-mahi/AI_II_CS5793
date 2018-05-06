@@ -5,8 +5,13 @@ import matplotlib.pyplot as plt
 from scipy.io import loadmat
 import numpy as np
 import tensorflow as tf
+
+from itertools import cycle
 from sklearn.linear_model import SGDClassifier
 from sklearn.metrics import accuracy_score
+from scipy import interp
+from sklearn.metrics import roc_curve, auc
+
 
 
 def svhn(file_name, one_hot=True):
@@ -34,9 +39,38 @@ def softmax_sklearn():
 
     X = np.array(X.reshape(X.shape[0], 32 * 32 * 3))
     f = np.array(f.reshape(f.shape[0], 32 * 32 * 3))
-    clf = SGDClassifier(loss='log')
-    clf.fit(X, Y)
-    y_hat = clf.predict(f)
+
+    colors = cycle(['cyan', 'indigo', 'seagreen', 'yellow', 'blue'])
+    lw = 2
+    i = 0
+    best_alpha = 0.1
+    best_accur = 0.0
+    acc = 0
+    for alpha, color in zip(np.logspace(-5, 0, num=5), colors):
+        clf = SGDClassifier(loss='log', alpha=0.0001)
+        clf.fit(X, Y)
+        y_hat = clf.predict(f)
+        fpr, tpr, thresholds = roc_curve(t, y_hat, pos_label=9)
+        roc_auc = auc(fpr, tpr)
+        plt.plot(fpr, tpr, lw=lw, color=color,
+                 label='ROC $\\alpha$ = {} auc' % (i, alpha,roc_auc))
+
+        acc = accuracy_score(t, y_hat)
+        if acc > best_accur:
+            best_accur = acc
+            best_alpha = alpha
+        i += 1
+
+    plt.xlim([-0.05, 1.05])
+    plt.ylim([-0.05, 1.05])
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.title("$\\alpha$ {}\naccuracy {:.2%}".format(best_alpha, best_accur))
+    plt.legend(loc="lower right")
+
+    plt.savefig("softmax.png", format='png')
+    plt.show()
+
     print("sklearn {:.3%}".format(accuracy_score(t, y_hat)))
 
 
@@ -76,5 +110,5 @@ def softmax_tf():
 
 if __name__ == "__main__":
     softmax_sklearn()
-    softmax_tf()
+    # softmax_tf()
 

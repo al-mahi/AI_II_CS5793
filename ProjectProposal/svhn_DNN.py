@@ -1,15 +1,9 @@
 #!/usr/bin/python
 
 from __future__ import print_function
-import tensorflow as tf
-import numpy as np
-import matplotlib.pyplot as plt
 from scipy.io import loadmat
 import numpy as np
 import tensorflow as tf
-from sklearn.linear_model import SGDClassifier
-from sklearn.metrics import accuracy_score
-import os
 
 def svhn(file_name, one_hot=True):
     """
@@ -43,25 +37,18 @@ def CNN():
 
     x = tf.placeholder(tf.float32, [None, 32*32])
     W = tf.Variable(tf.zeros([32*32, 10]))
+
     b = tf.Variable(tf.zeros([10]))
     y_true = tf.placeholder(tf.float32, [None, 10])
     keepratio = tf.placeholder(tf.float32)
 
-    z = tf.matmul(x, W) + b
-    tf.summary.histogram('pre_activations', z)
+    with tf.name_scope("pre_activaiton") as scope:
+        z = tf.matmul(x, W) + b
+        y_est = tf.nn.softmax(z)
 
-    y_est = tf.nn.softmax(z)
     error = 0.5*tf.reduce_sum(tf.square(y_true - y_est))
     tf.scalar_summary("cost", error)
     train_step = tf.train.AdamOptimizer().minimize(error)
-
-
-
-    tf.summary.histogram("weights", W)
-    tf.summary.histogram("biases", b)
-
-    merge_summary = tf.merge_all_summaries()
-    summary_writer = tf.train.SummaryWriter('summary_{}'.format(learning_rate), graph_def=sess.graph_def)
 
     print('\nDeep learning:')
 
@@ -82,17 +69,42 @@ def CNN():
 
     cnn = network(x, weights, biases, keepratio)
     y_conv = cnn['out']
-
-    # tf.summary.image('input', tf.reshape(x, [-1, 32, 32, 1]), max_outputs=5)
-    tf.summary.image("try1", tf.reshape(cnn['conv1'], [-1, 32, 32, 1]), max_outputs=5)
+    conv1 = cnn['conv1']
+    with tf.name_scope("conv") as sc:
+        wc1_hist = tf.histogram_summary('wc1', cnn['weights1'])
+        wc2_hist = tf.histogram_summary('wc2', cnn['weights2'])
+        wf1_hist = tf.histogram_summary('wf1', cnn['weights3'])
+        wf2_hist = tf.histogram_summary('wf2', cnn['weights4'])
+        bc1_hist = tf.histogram_summary('bc1', cnn['biases1'])
+        bc2_hist = tf.histogram_summary('bc2', cnn['biases2'])
+        bf1_hist = tf.histogram_summary('bf1', cnn['biases3'])
+        bf2_hist = tf.histogram_summary('bf2', cnn['biases4'])
+        x_slice = cnn['weights1']
+        # print(x_slice.get_shape())
+        x1_img = tf.image_summary("img_wc1", tf.transpose(x_slice, [3, 0, 1, 2]), max_images=20)
+        x_slice = cnn['weights2'][:, :, :, :20]
+        # print(x_slice.get_shape())
+        x1_img = tf.image_summary("img_wc2", tf.transpose(tf.reshape(x_slice, shape=[25, 32, 1, 20]), [3, 0, 1, 2]), max_images=20)
+        x_slice = cnn['weights3'][0:20, :]
+        # print(x_slice.get_shape())
+        x1_img = tf.image_summary("img_wf1", tf.transpose(tf.reshape(x_slice, shape=[32, 32, 1, 20]), [3, 0, 1, 2]), max_images=20)
+        x_slice = cnn['weights4'][:, :]
+        # print(x_slice.get_shape())
+        x1_img = tf.image_summary("img_wf2", tf.transpose(tf.reshape(x_slice, shape=[32, 32, 1, 10]), [3, 0, 1, 2]), max_images=20)
     # Note: Don't add a softmax reducer in the network if you are going to use this
     # cross-entropy function
+    with tf.name_scope("train") as scope:
+        cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(y_conv, y_true))
+        train_step = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(cross_entropy)
+        entropy_summary = tf.scalar_summary("entropy", cross_entropy)
 
-    cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(y_conv, y_true))
-    train_step = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(cross_entropy)
-    correct_prediction = tf.equal(tf.argmax(y_conv, 1), tf.argmax(y_true, 1))
-    accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-    tf.scalar_summary("acc", accuracy)
+    with tf.name_scope("test") as scope:
+        correct_prediction = tf.equal(tf.argmax(y_conv, 1), tf.argmax(y_true, 1))
+        accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+        acc_summary = tf.scalar_summary("acc", accuracy)
+
+    merge_summary = tf.merge_all_summaries()
+    summary_writer = tf.train.SummaryWriter('summary_{}'.format(learning_rate), graph_def=sess.graph_def)
 
     sess.run(tf.global_variables_initializer())
     saver = tf.train.Saver(max_to_keep=3)
@@ -102,9 +114,9 @@ def CNN():
         save_path = "opt_param/model_{}_{}.ckpt".format(learning_rate, last_ckpt)
         saver.restore(sess=sess, save_path=save_path)
 
-    for i in range(last_ckpt+1, 400):
+    for i in range(last_ckpt+1, 2000):
         idxs = np.random.randint(low=0, high=N, size=batch_size)
-        if i % 10 == 0:
+        if i % 200 == 0:
             save_path = saver.save(sess, "opt_param/model_{}_{}.ckpt".format(learning_rate, i))
             print("Model saved in file: %s" % save_path)
 
@@ -113,10 +125,10 @@ def CNN():
 
             print("step %d, training accuracy %g" % (i, train_accuracy))
 
-            summary_str = sess.run(merge_summary, feed_dict={x: traindata[idxs], y_true: trainlabels[idxs]})
+            summary_str = sess.run(merge_summary, feed_dict={x: traindata[idxs], y_true: trainlabels[idxs], keepratio: 1.0})
             summary_writer.add_summary(summary_str, i)
-
-        sess.run(train_step, feed_dict={x: traindata[idxs], y_true: trainlabels[idxs], keepratio: 0.5})
+        else:
+            sess.run(train_step, feed_dict={x: traindata[idxs], y_true: trainlabels[idxs], keepratio: 0.5})
 
     idxs = np.random.randint(low=0, high=N_test, size=N_test/2)
     print("test accuracy %g" % sess.run(accuracy, feed_dict={
@@ -144,7 +156,15 @@ def network(input, w, b, keepratio):
     # RETURN
     retval = { 'input_r': input_r, 'conv1': conv1, 'pool1': pool1,
                'conv2': conv2, 'pool2': pool2, 'dense1': dense1,
-               'fc1': fc1, 'fc_dr1': fc_dr1, 'out': out
+               'fc1': fc1, 'fc_dr1': fc_dr1, 'out': out,
+               'weights1': w['wc1'],
+               'weights2': w['wc2'],
+               'weights3': w['wf1'],
+               'weights4': w['wf2'],
+               'biases1': b['bc1'],
+               'biases2': b['bc2'],
+               'biases3': b['bf1'],
+               'biases4': b['bf2']
     }
     return retval
 

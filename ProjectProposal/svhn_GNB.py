@@ -49,6 +49,7 @@ def plot_roc_with_cross_validation(x, y, tx, ty, n_folds=5, description="Plot"):
     plt.ylabel('True Positive Rate')
     plt.title("{} accuracy {:.2%}".format(description, accuracy))
     plt.legend(loc="lower right")
+    plt.savefig("GNB.png", format='png')
     plt.show()
 
 if __name__ == "__main__":
@@ -75,4 +76,4 @@ if __name__ == "__main__":
     x = np.array(x.reshape(x.shape[0], 32 * 32))
     tx = np.array(tx.reshape(tx.shape[0], 32 * 32))
 
-    plot_roc_with_cross_validation(x=x, y=y, tx=tx, ty=ty, n_folds=5, description='ROC for Gaussian Naive Bayes Classifier\ntaking the average of rgb')
+    # plot_roc_with_cross_validation(x=x, y=y, tx=tx, ty=ty, n_folds=5, description='ROC for Gaussian Naive Bayes Classifier\ntaking the average of rgb')

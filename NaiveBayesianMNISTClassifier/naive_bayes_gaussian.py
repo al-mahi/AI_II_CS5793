@@ -54,6 +54,7 @@ def mnist_labels(fname):
     num_of_labels = training_labels.shape[0]
     return training_labels.reshape(num_of_labels, 1)
 
+
 if __name__ == "__main__":
     x = mnist_data('train-images.idx3-ubyte')
     y = mnist_labels('train-labels.idx1-ubyte')
